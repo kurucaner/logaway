@@ -1,0 +1,4 @@
+.history
+*.lock
+bun.lockb
+package-lock.json

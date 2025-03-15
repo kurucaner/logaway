@@ -1,0 +1,30 @@
+{
+  "name": "logaway",
+  "version": "1.0.0",
+  "description": "A CLI tool to remove console.log statements from JavaScript and TypeScript files",
+  "main": "src/index.js",
+  "bin": {
+    "logaway": "./bin/logaway.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "logaway",
+    "console",
+    "logs",
+    "cleanup",
+    "javascript",
+    "typescript",
+    "development"
+  ],
+  "author": "Caner Kuru",
+  "license": "MIT",
+  "dependencies": {
+    "yargs": "^17.7.2"
+  },
+  "engines": {
+    "node": ">=14.16"
+  }
+}
