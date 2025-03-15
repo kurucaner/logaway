@@ -1,6 +1,6 @@
 {
   "name": "logaway",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A CLI tool to remove console.log statements from JavaScript and TypeScript files",
   "main": "src/index.js",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/index.test.js",
+    "pub": "npm run test && npm publish"
   },
   "keywords": [
     "logaway",
@@ -26,5 +27,8 @@
   },
   "engines": {
     "node": ">=14.16"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

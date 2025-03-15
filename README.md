@@ -176,6 +176,40 @@ console.log(
 );
 ```
 
+21. Optional chaining with nullish coalescing:
+
+```javascript
+console.log(user?.profile?.settings ?? "No settings");
+```
+
+22. Console.log with generator function results:
+
+```javascript
+console.log(generator.next().value);
+```
+
+23. Console.log with spread operator and nullish coalescing:
+
+```javascript
+console.log("User data:", ...userData, "Default:", defaultValue ?? "No value");
+```
+
+24. Console.log with computed property names in objects:
+
+```javascript
+console.log({ ["computed" + "Name"]: value });
+```
+
+25. Console.log with new operator
+
+```javascript
+console.log(new Date());
+```
+
 ## License
 
 MIT
+
+```
+
+```

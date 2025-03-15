@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 
+const regex = /(?:\/\/)?\s*console\.log\([^;]*\);?/g;
+
 export function removeConsoleLogs(config) {
   // Extract configuration
   const {
@@ -9,7 +11,7 @@ export function removeConsoleLogs(config) {
     ignoredFiles,
     fileExtensions,
     dryRun,
-    verbose
+    verbose,
   } = config;
 
   // Statistics
@@ -30,10 +32,7 @@ export function removeConsoleLogs(config) {
       entries.forEach((entry) => {
         const fullPath = path.join(dir, entry.name);
 
-        if (
-          entry.isDirectory() &&
-          !ignoredDirectories.includes(entry.name)
-        ) {
+        if (entry.isDirectory() && !ignoredDirectories.includes(entry.name)) {
           processDirectory(fullPath);
         } else if (
           entry.isFile() &&
@@ -46,17 +45,12 @@ export function removeConsoleLogs(config) {
           let count = 0;
 
           // Count console.log occurrences
-          const matches = fileContent.match(
-            /((\/\/)?\s*console\.log\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\);?)/g
-          );
+          const matches = fileContent.match(regex);
           count = matches ? matches.length : 0;
 
           // Only process and report if logs were found
           if (count > 0) {
-            const updatedContent = fileContent.replace(
-              /((\/\/)?\s*console\.log\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\);?)/g,
-              ""
-            );
+            const updatedContent = fileContent.replace(regex, "");
 
             // Store stats for each file with logs
             const relativePath = path.relative(targetDir, fullPath);
@@ -66,8 +60,10 @@ export function removeConsoleLogs(config) {
             });
 
             if (verbose) {
-              console.log(
-                `${dryRun ? "[DRY RUN] Would remove" : "Removed"} ${count} console.log(s) from ${relativePath}`
+              console.info(
+                `${
+                  dryRun ? "[DRY RUN] Would remove" : "Removed"
+                } ${count} console.info(s) from ${relativePath}`
               );
             }
 
@@ -91,7 +87,7 @@ export function removeConsoleLogs(config) {
     filesChecked,
     filesModified,
     totalLogsRemoved,
-    fileStats
+    fileStats,
   };
 }
 
@@ -99,34 +95,34 @@ export function printSummary(stats, config) {
   const { dryRun } = config;
   const { filesChecked, filesModified, totalLogsRemoved, fileStats } = stats;
 
-  console.log("\n=== Summary ===");
-  console.log(`Files checked: ${filesChecked}`);
-  console.log(`Files modified: ${filesModified}`);
-  console.log(`Total console.logs removed: ${totalLogsRemoved}`);
+  console.info("\n=== Summary ===");
+  console.info(`Files checked: ${filesChecked}`);
+  console.info(`Files modified: ${filesModified}`);
+  console.info(`Total console.logs removed: ${totalLogsRemoved}`);
 
   if (totalLogsRemoved > 0) {
     // Sort files by number of logs removed (descending)
     fileStats.sort((a, b) => b.logsRemoved - a.logsRemoved);
 
-    console.log("\n=== Files with most console.logs ===");
+    console.info("\n=== Files with most console.logs ===");
     // Print top 5 files or all if less than 5
     const topFiles = fileStats.slice(0, Math.min(5, fileStats.length));
     topFiles.forEach((file, index) => {
-      console.log(
-        `${index + 1}. ${file.path}: ${file.logsRemoved} console.log(s)`
+      console.info(
+        `${index + 1}. ${file.path}: ${file.logsRemoved} console.info(s)`
       );
     });
 
     if (dryRun) {
-      console.log(
+      console.info(
         "\nThis was a dry run. No files were modified. Run without --dryRun to apply changes."
       );
     }
   } else {
-    console.log("\nNo console.logs found in the specified directory.");
+    console.info("\nNo console.logs found in the specified directory.");
   }
 
   if (!dryRun && totalLogsRemoved > 0) {
-    console.log(`\nAll console.logs have been removed successfully! 🎉`);
+    console.info(`\nAll console.logs have been removed successfully! 🎉`);
   }
 }
