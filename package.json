@@ -1,6 +1,6 @@
 {
   "name": "logaway",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A CLI tool to remove console.log statements from JavaScript and TypeScript files",
   "main": "src/index.js",
   "bin": {

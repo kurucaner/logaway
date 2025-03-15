@@ -24,7 +24,7 @@ const config = yargs(hideBin(process.argv))
     alias: "f",
     description: "Files to ignore",
     type: "string",
-    default: "logger.ts",
+    default: "",
     coerce: (val) => val.split(",").filter(Boolean),
   })
   .option("extensions", {
@@ -69,10 +69,16 @@ if (!fs.existsSync(configObj.targetDir)) {
   process.exit(1);
 } else {
   console.log(
-    `${configObj.dryRun ? "[DRY RUN] " : ""}Starting to process ${configObj.targetDir}...`
+    `${configObj.dryRun ? "[DRY RUN] " : ""}Starting to process ${
+      configObj.targetDir
+    }...`
   );
   console.log(
-    `Ignored directories: ${configObj.ignoredDirectories.length ? configObj.ignoredDirectories.join(", ") : "None"}`
+    `Ignored directories: ${
+      configObj.ignoredDirectories.length
+        ? configObj.ignoredDirectories.join(", ")
+        : "None"
+    }`
   );
   console.log(`Ignored files: ${configObj.ignoredFiles.join(", ")}`);
   console.log(`File extensions: ${configObj.fileExtensions.join(", ")}`);
