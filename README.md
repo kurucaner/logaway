@@ -206,6 +206,55 @@ console.log({ ["computed" + "Name"]: value });
 console.log(new Date());
 ```
 
+26. Styled console.log with CSS directives
+
+```javascript
+console.log("%cStyled log message", "color: blue; font-weight: bold");
+```
+
+27. Async function results
+
+```javascript
+console.log(async () => await fetchUserData(userId));
+```
+
+28. Console.log with multiple conditionals
+
+```javascript
+console.log(
+  importantData || "No data available",
+  attempts > 3 ? "Retry limit exceeded" : "Retrying..."
+);
+```
+
+29. Console.log with immediately invoked function expression (IIFE)
+
+```javascript
+console.log(
+  (function () {
+    return calculateComplexValue(a, b);
+  })()
+);
+```
+
+30. Console.log with tagged template literals
+
+```javascript
+console.log(debug`User authentication ${status} with token ${token}`);
+```
+
+31. Console.log with complex conditional chains
+
+```javascript
+console.log(
+  user && user.isAdmin
+    ? "Admin access"
+    : user && user.isEditor
+    ? "Editor access"
+    : "Regular access"
+);
+```
+
 ## License
 
 MIT

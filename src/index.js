@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-const regex = /(?:\/\/)?\s*console\.log\([^;]*\);?/g;
+const regex =
+  /((\/\/)?\s*console\.log\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\);?)/g;
 
 export function removeConsoleLogs(config) {
   // Extract configuration
