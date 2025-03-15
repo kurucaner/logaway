@@ -6,14 +6,48 @@ A CLI tool to remove console.log statements from JavaScript and TypeScript files
 
 ## Installation
 
+### Global Installation
+
 ```bash
 npm install -g logaway
 ```
 
+### Local Installation (as dev dependency)
+
+```bash
+npm install --save-dev logaway
+```
+
+Then add a script to your package.json:
+
+```json
+{
+  "scripts": {
+    "logaway": "logaway"
+  }
+}
+```
+
 ## Usage
+
+### Global Usage
 
 ```bash
 logaway [options]
+```
+
+### Local Usage (with npm scripts)
+
+```bash
+npm run logaway -- [options]
+```
+
+Note: When using npm scripts, you need to add `--` before passing arguments to the underlying command.
+
+For example:
+
+```bash
+npm run logaway -- --targetDir=./app --dryRun
 ```
 
 ### Options
