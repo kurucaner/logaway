@@ -63,7 +63,7 @@ npm run logaway --targetDir=./app --preview
 - `--ignoredFiles`, `-f` <file1,file2> - Comma-separated list of files to ignore (default: "logger.ts")
 - `--extensions`, `-e` <.js,.ts> - Comma-separated list of file extensions to process (default: ".js,.jsx,.ts,.tsx")
 - `--methods`, `-m` <method1,method2> - Comma-separated list of console methods to remove (default: "log")
-- `--preview`, `-s` - Preview changes without modifying files
+- `--preview`, `-p` - Preview changes without modifying files
 - `--verbose`, `-v` - Show detailed information for each file
 - `--help`, `-h` - Show help information
 

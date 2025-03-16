@@ -81,7 +81,7 @@ if (!fs.existsSync(configObj.targetDir)) {
       configObj.targetDir
     }...`
   );
-  if (configObj.verbose) {
+  if (configObj.verbose || configObj.preview) {
     console.log(
       `Ignored directories: ${
         configObj.ignoredDirectories.length
