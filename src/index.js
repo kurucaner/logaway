@@ -64,7 +64,7 @@ export function removeConsoleLogs(config) {
               console.info(
                 `${
                   dryRun ? "[DRY RUN] Would remove" : "Removed"
-                } ${count} console.info(s) from ${relativePath}`
+                } ${count} console.log(s) from ${relativePath}`
               );
             }
 
@@ -110,7 +110,7 @@ export function printSummary(stats, config) {
     const topFiles = fileStats.slice(0, Math.min(5, fileStats.length));
     topFiles.forEach((file, index) => {
       console.info(
-        `${index + 1}. ${file.path}: ${file.logsRemoved} console.info(s)`
+        `${index + 1}. ${file.path}: ${file.logsRemoved} console.log(s)`
       );
     });
 

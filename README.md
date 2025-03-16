@@ -45,7 +45,7 @@ logaway [options]
 ### Local Usage (with npm scripts)
 
 ```bash
-npm run logaway -- [options]
+npm run logaway [options]
 ```
 
 Note: When using npm scripts, you need to add `--` before passing arguments to the underlying command.
@@ -53,7 +53,7 @@ Note: When using npm scripts, you need to add `--` before passing arguments to t
 For example:
 
 ```bash
-npm run logaway -- --targetDir=./app --dryRun
+npm run logaway --targetDir=./app --dryRun
 ```
 
 ### Options
