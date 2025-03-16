@@ -53,7 +53,7 @@ Note: When using npm scripts, you need to add `--` before passing arguments to t
 For example:
 
 ```bash
-npm run logaway --targetDir=./app --dryRun
+npm run logaway --targetDir=./app --preview
 ```
 
 ### Options
@@ -62,7 +62,8 @@ npm run logaway --targetDir=./app --dryRun
 - `--ignoredDirs`, `-d` <dir1,dir2> - Comma-separated list of directories to ignore
 - `--ignoredFiles`, `-f` <file1,file2> - Comma-separated list of files to ignore (default: "logger.ts")
 - `--extensions`, `-e` <.js,.ts> - Comma-separated list of file extensions to process (default: ".js,.jsx,.ts,.tsx")
-- `--dryRun`, `-dr` - Preview changes without modifying files
+- `--methods`, `-m` <method1,method2> - Comma-separated list of console methods to remove (default: "log")
+- `--preview`, `-s` - Preview changes without modifying files
 - `--verbose`, `-v` - Show detailed information for each file
 - `--help`, `-h` - Show help information
 
@@ -78,8 +79,11 @@ logaway --targetDir=./app --ignoredDirs=node_modules,dist
 # Using shortcuts
 logaway -t ./app -d node_modules,dist -e .js,.ts
 
+# Remove console.log, console.info and console.warn statements
+logaway --methods=log,info,warn
+
 # Dry run to preview changes
-logaway --dryRun
+logaway --preview
 ```
 
 ## Examples of Removed Logs

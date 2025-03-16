@@ -1,9 +1,6 @@
 import fs from "fs";
 import path from "path";
 
-const regex =
-  /((\/\/)?\s*console\.log\((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*\);?)/g;
-
 export function removeConsoleLogs(config) {
   // Extract configuration
   const {
@@ -11,8 +8,9 @@ export function removeConsoleLogs(config) {
     ignoredDirectories,
     ignoredFiles,
     fileExtensions,
-    dryRun,
+    preview,
     verbose,
+    methods = ["log"],
   } = config;
 
   // Statistics
@@ -20,6 +18,10 @@ export function removeConsoleLogs(config) {
   let filesModified = 0;
   let totalLogsRemoved = 0;
   let fileStats = [];
+  let methodStats = methods.reduce((acc, method) => {
+    acc[method] = 0;
+    return acc;
+  }, {});
 
   function processDirectory(dir) {
     // Check if directory exists before proceeding
@@ -43,37 +45,67 @@ export function removeConsoleLogs(config) {
           filesChecked++;
 
           const fileContent = fs.readFileSync(fullPath, "utf8");
-          let count = 0;
 
-          // Count console.log occurrences
-          const matches = fileContent.match(regex);
-          count = matches ? matches.length : 0;
+          // Create stats for this file
+          let fileMethodStats = methods.reduce((acc, method) => {
+            acc[method] = 0;
+            return acc;
+          }, {});
+
+          let totalFileLogsRemoved = 0;
+          let updatedContent = fileContent;
+
+          // Process each method individually to count them properly
+          methods.forEach((method) => {
+            const methodRegex = new RegExp(
+              `((\/\/)?\\s*console\\.(${method})\\((?:[^()]+|\\((?:[^()]+|\\([^()]*\\))*\\))*\\);?)`,
+              "g"
+            );
+
+            const matches = updatedContent.match(methodRegex);
+            const methodCount = matches ? matches.length : 0;
+
+            if (methodCount > 0) {
+              fileMethodStats[method] = methodCount;
+              methodStats[method] += methodCount;
+              totalFileLogsRemoved += methodCount;
+
+              // Replace this specific method
+              updatedContent = updatedContent.replace(methodRegex, "");
+            }
+          });
 
           // Only process and report if logs were found
-          if (count > 0) {
-            const updatedContent = fileContent.replace(regex, "");
-
+          if (totalFileLogsRemoved > 0) {
             // Store stats for each file with logs
             const relativePath = path.relative(targetDir, fullPath);
             fileStats.push({
               path: relativePath,
-              logsRemoved: count,
+              logsRemoved: totalFileLogsRemoved,
+              methodBreakdown: fileMethodStats,
             });
 
             if (verbose) {
               console.info(
                 `${
-                  dryRun ? "[DRY RUN] Would remove" : "Removed"
-                } ${count} console.log(s) from ${relativePath}`
+                  preview ? "[DRY RUN] Would remove" : "Removed"
+                } ${totalFileLogsRemoved} console statement(s) from ${relativePath}`
               );
+
+              // If verbose, show breakdown by method
+              Object.entries(fileMethodStats).forEach(([method, count]) => {
+                if (count > 0) {
+                  console.info(`  - console.${method}: ${count}`);
+                }
+              });
             }
 
-            if (!dryRun) {
+            if (!preview) {
               fs.writeFileSync(fullPath, updatedContent, "utf8");
             }
 
             filesModified++;
-            totalLogsRemoved += count;
+            totalLogsRemoved += totalFileLogsRemoved;
           }
         }
       });
@@ -89,41 +121,65 @@ export function removeConsoleLogs(config) {
     filesModified,
     totalLogsRemoved,
     fileStats,
+    methodStats,
   };
 }
 
 export function printSummary(stats, config) {
-  const { dryRun } = config;
-  const { filesChecked, filesModified, totalLogsRemoved, fileStats } = stats;
+  const { preview } = config;
+  const {
+    filesChecked,
+    filesModified,
+    totalLogsRemoved,
+    fileStats,
+    methodStats,
+  } = stats;
 
   console.info("\n=== Summary ===");
   console.info(`Files checked: ${filesChecked}`);
   console.info(`Files modified: ${filesModified}`);
-  console.info(`Total console.logs removed: ${totalLogsRemoved}`);
+  console.info(`Total console statements removed: ${totalLogsRemoved}`);
 
   if (totalLogsRemoved > 0) {
+    // Print breakdown by method
+    console.info("\n=== Breakdown by Method ===");
+    Object.entries(methodStats)
+      .filter(([_, count]) => count > 0)
+      .sort(([_, countA], [__, countB]) => countB - countA)
+      .forEach(([method, count]) => {
+        console.info(`console.${method}: ${count}`);
+      });
+
     // Sort files by number of logs removed (descending)
     fileStats.sort((a, b) => b.logsRemoved - a.logsRemoved);
 
-    console.info("\n=== Files with most console.logs ===");
+    console.info("\n=== Files with most console statements ===");
     // Print top 5 files or all if less than 5
     const topFiles = fileStats.slice(0, Math.min(5, fileStats.length));
     topFiles.forEach((file, index) => {
       console.info(
-        `${index + 1}. ${file.path}: ${file.logsRemoved} console.log(s)`
+        `${index + 1}. ${file.path}: ${file.logsRemoved} console statement(s)`
       );
+
+      // Show method breakdown for top files
+      Object.entries(file.methodBreakdown)
+        .filter(([_, count]) => count > 0)
+        .sort(([_, countA], [__, countB]) => countB - countA)
+        .forEach(([method, count]) => {
+          console.info(`   - console.${method}: ${count}`);
+        });
     });
 
-    if (dryRun) {
+    if (preview) {
       console.info(
-        "\nThis was a dry run. No files were modified. Run without --dryRun to apply changes."
+        "\nThis was a dry run. No files were modified. Run without --preview to apply changes."
       );
     }
   } else {
-    console.info("\nNo console.logs found in the specified directory.");
+    console.info("\nNo console statements found in the specified directory.");
   }
 
-  if (!dryRun && totalLogsRemoved > 0) {
-    console.info(`\nAll console.logs have been removed successfully! 🎉`);
+  if (!preview && totalLogsRemoved > 0) {
+    console.info(`\nAll console statements have been removed successfully! 🎉`);
   }
 }

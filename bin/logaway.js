@@ -34,9 +34,9 @@ const config = yargs(hideBin(process.argv))
     default: ".js,.jsx,.ts,.tsx",
     coerce: (val) => val.split(",").filter(Boolean),
   })
-  .option("dryRun", {
-    alias: "dr",
-    description: "Preview changes without modifying files",
+  .option("preview", {
+    alias: "p",
+    description: "preview mode (no output)",
     type: "boolean",
     default: false,
   })
@@ -46,6 +46,13 @@ const config = yargs(hideBin(process.argv))
     type: "boolean",
     default: false,
   })
+  .option("methods", {
+    alias: "m",
+    description: "Console methods to remove (comma-separated)",
+    type: "string",
+    default: "log",
+    coerce: (val) => val.split(",").filter(Boolean),
+  })
   .help()
   .alias("help", "h").argv;
 
@@ -54,8 +61,9 @@ const configObj = {
   ignoredDirectories: config.ignoredDirs,
   ignoredFiles: config.ignoredFiles,
   fileExtensions: config.extensions,
-  dryRun: config.dryRun,
+  preview: config.preview,
   verbose: config.verbose,
+  methods: config.methods,
 };
 
 // Check if target directory exists before starting the process
@@ -69,7 +77,7 @@ if (!fs.existsSync(configObj.targetDir)) {
   process.exit(1);
 } else {
   console.log(
-    `${configObj.dryRun ? "[DRY RUN] " : ""}Starting to process ${
+    `${configObj.preview ? "[DRY RUN] " : ""}Starting to process ${
       configObj.targetDir
     }...`
   );
