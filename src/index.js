@@ -9,7 +9,6 @@ export function removeConsoleLogs(config) {
     ignoredFiles,
     fileExtensions,
     preview,
-    verbose,
     methods = ["log"],
   } = config;
 
