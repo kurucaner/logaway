@@ -85,21 +85,6 @@ export function removeConsoleLogs(config) {
               methodBreakdown: fileMethodStats,
             });
 
-            if (verbose) {
-              console.info(
-                `${
-                  preview ? "[DRY RUN] Would remove" : "Removed"
-                } ${totalFileLogsRemoved} console statement(s) from ${relativePath}`
-              );
-
-              // If verbose, show breakdown by method
-              Object.entries(fileMethodStats).forEach(([method, count]) => {
-                if (count > 0) {
-                  console.info(`  - console.${method}: ${count}`);
-                }
-              });
-            }
-
             if (!preview) {
               fs.writeFileSync(fullPath, updatedContent, "utf8");
             }
@@ -126,60 +111,55 @@ export function removeConsoleLogs(config) {
 }
 
 export function printSummary(stats, config) {
-  const { preview } = config;
-  const {
-    filesChecked,
-    filesModified,
-    totalLogsRemoved,
-    fileStats,
-    methodStats,
-  } = stats;
+  const { preview, verbose } = config;
+  const { filesChecked, filesModified, totalLogsRemoved, fileStats } = stats;
 
-  console.info("\n=== Summary ===");
-  console.info(`Files checked: ${filesChecked}`);
-  console.info(`Files modified: ${filesModified}`);
-  console.info(`Total console statements removed: ${totalLogsRemoved}`);
+  if (verbose || preview) {
+    console.info("\n=== Summary ===");
+    console.info(`Files checked: ${filesChecked}`);
+    console.info(`Files modified: ${filesModified}`);
+    console.info(`Total console statements removed: ${totalLogsRemoved}`);
+  }
 
   if (totalLogsRemoved > 0) {
-    // Print breakdown by method
-    console.info("\n=== Breakdown by Method ===");
-    Object.entries(methodStats)
-      .filter(([_, count]) => count > 0)
-      .sort(([_, countA], [__, countB]) => countB - countA)
-      .forEach(([method, count]) => {
-        console.info(`console.${method}: ${count}`);
-      });
-
     // Sort files by number of logs removed (descending)
     fileStats.sort((a, b) => b.logsRemoved - a.logsRemoved);
 
-    console.info("\n=== Files with most console statements ===");
+    if (verbose || preview) {
+      console.info("\n=== Files with most console statements ===");
+    }
     // Print top 5 files or all if less than 5
     const topFiles = fileStats.slice(0, Math.min(5, fileStats.length));
     topFiles.forEach((file, index) => {
-      console.info(
-        `${index + 1}. ${file.path}: ${file.logsRemoved} console statement(s)`
-      );
+      if (verbose || preview) {
+        console.info(
+          `${index + 1}. ${file.path}: ${file.logsRemoved} console statement${
+            file.logsRemoved === 1 ? "" : "s"
+          }`
+        );
+      }
 
       // Show method breakdown for top files
-      Object.entries(file.methodBreakdown)
-        .filter(([_, count]) => count > 0)
-        .sort(([_, countA], [__, countB]) => countB - countA)
-        .forEach(([method, count]) => {
-          console.info(`   - console.${method}: ${count}`);
-        });
+      if (verbose || preview) {
+        Object.entries(file.methodBreakdown)
+          .filter(([_, count]) => count > 0)
+          .sort(([_, countA], [__, countB]) => countB - countA)
+          .forEach(([method, count]) => {
+            console.info(`   - console.${method}: ${count}`);
+          });
+      }
     });
 
     if (preview) {
       console.info(
-        "\nThis was a dry run. No files were modified. Run without --preview to apply changes."
+        "This was a dry run. No files were modified. Run without --preview to apply changes."
       );
     }
   } else {
-    console.info("\nNo console statements found in the specified directory.");
+    console.info("No console statements found in the specified directory.");
   }
 
   if (!preview && totalLogsRemoved > 0) {
-    console.info(`\nAll console statements have been removed successfully! 🎉`);
+    console.info(`All console statements have been removed successfully! 🎉`);
   }
 }

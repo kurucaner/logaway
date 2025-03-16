@@ -81,15 +81,23 @@ if (!fs.existsSync(configObj.targetDir)) {
       configObj.targetDir
     }...`
   );
-  console.log(
-    `Ignored directories: ${
-      configObj.ignoredDirectories.length
-        ? configObj.ignoredDirectories.join(", ")
-        : "None"
-    }`
-  );
-  console.log(`Ignored files: ${configObj.ignoredFiles.join(", ")}`);
-  console.log(`File extensions: ${configObj.fileExtensions.join(", ")}`);
+  if (configObj.verbose) {
+    console.log(
+      `Ignored directories: ${
+        configObj.ignoredDirectories.length
+          ? configObj.ignoredDirectories.join(", ")
+          : "None"
+      }`
+    );
+    console.log(
+      `Ignored files: ${
+        configObj.ignoredFiles.length
+          ? configObj.ignoredFiles.join(", ")
+          : "None"
+      }`
+    );
+    console.log(`File extensions: ${configObj.fileExtensions.join(", ")}`);
+  }
 
   try {
     const stats = removeConsoleLogs(configObj);
