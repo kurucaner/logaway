@@ -295,6 +295,47 @@ console.log(
 );
 ```
 
+32. console.log() with array destructuring assignment
+
+```javascript
+console.log(([a, b] = [1, 2]));
+```
+
+33. console.log() with nested template literals
+
+```javascript
+console.log(`User: ${`${firstName} ${lastName}`}`);
+```
+
+34. console.log() with no arguments
+
+```javascript
+console.log();
+```
+
+35. console.log() with a regular expression
+
+```javascript
+console.log(/^user-\d+$/);
+```
+
+36. console.log() with chained method calls
+
+```javascript
+console.log(
+  users
+    .find((u) => u.id === 5)
+    .getPurchases()
+    .filter((p) => p.active)
+);
+```
+
+37. console.log() with unicode escape sequences
+
+```javascript
+console.log("\u0048\u0065\u006c\u006c\u006f");
+```
+
 ## License
 
 MIT

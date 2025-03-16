@@ -17,6 +17,7 @@ console.log(\`User profile:
   Email: \${email}
   Role: \${role}
   Last active: \${lastActive}\`);
+// console.log("Debugging user authentication");
 console.log("Cart total: $" + (subtotal + tax).toFixed(2));
 console.log("User settings:", user.preferences.notifications);
 console.log("Error in authentication process:", error.message);
@@ -39,4 +40,10 @@ console.log(importantData || "No data available", attempts > 3 ? "Retry limit ex
 console.log((function() { return calculateComplexValue(a, b); })());
 console.log(debug\`User authentication \${status} with token \${token}\`);
 console.log(user && user.isAdmin ? "Admin access" : user && user.isEditor ? "Editor access" : "Regular access");
+console.log([a, b] = [1, 2]);
+console.log(\`User: \${firstName} \${lastName}\`);
+console.log();
+console.log(/^user-\d+$/);
+console.log(users.find(u => u.id === 5).getPurchases().filter(p => p.active));
+console.log("\u0048\u0065\u006c\u006c\u006f");
 `;
