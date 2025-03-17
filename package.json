@@ -11,6 +11,10 @@
     "test": "node tests/index.test.js",
     "pub": "npm run test && npm publish"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kurucaner/logaway"
+  },
   "keywords": [
     "logaway",
     "console",
