@@ -42,7 +42,7 @@ export function removeConsoleLogs(config) {
         } else if (
           entry.isFile() &&
           fileExtensions.includes(path.extname(entry.name)) &&
-          !ignoredFiles.includes(entry.name)
+          !ignoredFiles?.includes(entry.name)
         ) {
           filesChecked++;
 

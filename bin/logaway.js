@@ -17,15 +17,15 @@ const config = yargs(hideBin(process.argv))
     alias: "d",
     description: "Directories to ignore",
     type: "string",
-    default: "",
-    coerce: (val) => val.split(",").filter(Boolean),
+    default: null,
+    coerce: (val) => val?.split(",").filter(Boolean),
   })
   .option("ignoredFiles", {
     alias: "f",
     description: "Files to ignore",
     type: "string",
-    default: "",
-    coerce: (val) => val.split(",").filter(Boolean),
+    default: null,
+    coerce: (val) => val?.split(",").filter(Boolean),
   })
   .option("extensions", {
     alias: "e",
@@ -105,8 +105,8 @@ if (!fs.existsSync(configObj.targetDir)) {
     );
     console.log(
       `Ignored files: ${
-        configObj.ignoredFiles.length
-          ? configObj.ignoredFiles.join(", ")
+        configObj.ignoredFiles?.length
+          ? configObj.ignoredFiles?.join(", ")
           : "None"
       }`
     );

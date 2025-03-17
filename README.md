@@ -56,16 +56,18 @@ npm run logaway --targetDir=./app --preview
 
 ### Options
 
-- `--targetDir`, `--t` <path> - Directory to process (default: "./src")
-- `--ignoredDirs`, `--d` <dir1,dir2> - Comma-separated list of directories to ignore
-- `--ignoredFiles`, `--f` <file1,file2> - Comma-separated list of files to ignore (default: "logger.ts")
-- `--extensions`, `--e` <.js,.ts> - Comma-separated list of file extensions to process (default: ".js,.jsx,.ts,.tsx")
-- `--methods`, `--m` <method1,method2> - Comma-separated list of console methods to remove (default: "log")
-- `--preview`, `--p` - Preview changes without modifying files
-- `--verbose`, `--v` - Show detailed information for each file
-- `--reportFormat`, `--rf` <json,csv> - Report file format (default: null)
-- `--reportPath`, `--rp` <path> - Report file path (default: null)
-- `--help`, `--h` - Show help information
+| Option           | Short  | Description                                        | Default               |
+| ---------------- | ------ | -------------------------------------------------- | --------------------- |
+| `--targetDir`    | `-t`   | Directory to process                               | `"./src"`             |
+| `--ignoredDirs`  | `-d`   | Comma-separated list of directories to ignore      | `null`                |
+| `--ignoredFiles` | `-f`   | Comma-separated list of files to ignore            | `null`                |
+| `--extensions`   | `-e`   | Comma-separated list of file extensions to process | `".js,.jsx,.ts,.tsx"` |
+| `--methods`      | `-m`   | Comma-separated list of console methods to remove  | `"log"`               |
+| `--preview`      | `-p`   | Preview changes without modifying files            | `false`               |
+| `--verbose`      | `-v`   | Show detailed information for each file            | `false`               |
+| `--reportFormat` | `--rf` | Report file format (json,csv)                      | `null`                |
+| `--reportPath`   | `--rp` | Report file path                                   | `null`                |
+| `--help`         | `-h`   | Show help information                              |                       |
 
 ### Examples
 
