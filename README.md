@@ -58,13 +58,13 @@ npm run logaway --targetDir=./app --preview
 
 | Option           | Short  | Description                                        | Default               |
 | ---------------- | ------ | -------------------------------------------------- | --------------------- |
-| `--targetDir`    | `-t`   | Directory to process                               | `"./src"`             |
-| `--ignoredDirs`  | `-d`   | Comma-separated list of directories to ignore      | `null`                |
-| `--ignoredFiles` | `-f`   | Comma-separated list of files to ignore            | `null`                |
-| `--extensions`   | `-e`   | Comma-separated list of file extensions to process | `".js,.jsx,.ts,.tsx"` |
-| `--methods`      | `-m`   | Comma-separated list of console methods to remove  | `"log"`               |
-| `--preview`      | `-p`   | Preview changes without modifying files            | `false`               |
-| `--verbose`      | `-v`   | Show detailed information for each file            | `false`               |
+| `--targetDir`    | `--t`  | Directory to process                               | `"./src"`             |
+| `--ignoredDirs`  | `--d`  | Comma-separated list of directories to ignore      | `null`                |
+| `--ignoredFiles` | `--f`  | Comma-separated list of files to ignore            | `null`                |
+| `--extensions`   | `--e`  | Comma-separated list of file extensions to process | `".js,.jsx,.ts,.tsx"` |
+| `--methods`      | `--m`  | Comma-separated list of console methods to remove  | `"log"`               |
+| `--preview`      | `--p`  | Preview changes without modifying files            | `false`               |
+| `--verbose`      | `--v`  | Show detailed information for each file            | `false`               |
 | `--reportFormat` | `--rf` | Report file format (json,csv)                      | `null`                |
 | `--reportPath`   | `--rp` | Report file path                                   | `null`                |
 | `--help`         | `-h`   | Show help information                              |                       |
