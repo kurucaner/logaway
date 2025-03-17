@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { generateReportFile } from "./generate-report-file";
+import { generateReportFile } from "./generate-report-file.js";
 
 export function removeConsoleLogs(config) {
   // Extract configuration
