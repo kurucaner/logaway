@@ -2,8 +2,6 @@
 
 A CLI tool to remove console.log statements from JavaScript and TypeScript files.
 
-> **Note:** This tool only removes `console.log()` statements and will not affect other console methods like `console.info()`, `console.error()`, `console.warn()`, etc.
-
 ## Installation
 
 ### Global Installation
