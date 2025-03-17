@@ -145,8 +145,8 @@ function testMultipleMethodsRemoval() {
 
 async function runAllTests() {
   try {
-    await testConsoleLogRemoval();
-    await testMultipleMethodsRemoval();
+    testConsoleLogRemoval();
+    testMultipleMethodsRemoval();
   } catch (error) {
     console.error("Error during test:", error);
     process.exit(1);

@@ -123,6 +123,7 @@ export function removeConsoleLogs(config) {
     filesModified,
     totalLogsRemoved,
     fileStats,
+    methodStats,
   };
 }
 
