@@ -37,11 +37,11 @@ export function removeConsoleLogs(config) {
       entries.forEach((entry) => {
         const fullPath = path.join(dir, entry.name);
 
-        if (entry.isDirectory() && !ignoredDirectories.includes(entry.name)) {
+        if (entry.isDirectory() && !ignoredDirectories?.includes(entry.name)) {
           processDirectory(fullPath);
         } else if (
           entry.isFile() &&
-          fileExtensions.includes(path.extname(entry.name)) &&
+          fileExtensions?.includes(path.extname(entry.name)) &&
           !ignoredFiles?.includes(entry.name)
         ) {
           filesChecked++;
@@ -118,7 +118,12 @@ export function removeConsoleLogs(config) {
     generateReportFile(report, reportFormat, reportPath);
   }
 
-  return report;
+  return {
+    filesChecked,
+    filesModified,
+    totalLogsRemoved,
+    fileStats,
+  };
 }
 
 export function printSummary(stats, config) {
