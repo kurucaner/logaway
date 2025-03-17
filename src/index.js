@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { generateReportFile } from "./generate-report-file";
 
 export function removeConsoleLogs(config) {
   // Extract configuration
@@ -10,6 +11,8 @@ export function removeConsoleLogs(config) {
     fileExtensions,
     preview,
     methods = ["log"],
+    reportFormat = null, // "json", "csv"
+    reportPath = null,
   } = config;
 
   // Statistics
@@ -100,13 +103,22 @@ export function removeConsoleLogs(config) {
 
   processDirectory(targetDir);
 
-  return {
-    filesChecked,
-    filesModified,
-    totalLogsRemoved,
-    fileStats,
+  const report = {
+    summary: {
+      filesChecked,
+      filesModified,
+      totalLogsRemoved,
+      timestamp: new Date().toISOString(),
+    },
     methodStats,
+    fileStats,
   };
+
+  if (reportFormat) {
+    generateReportFile(report, reportFormat, reportPath);
+  }
+
+  return report;
 }
 
 export function printSummary(stats, config) {

@@ -56,14 +56,16 @@ npm run logaway --targetDir=./app --preview
 
 ### Options
 
-- `--targetDir`, `-t` <path> - Directory to process (default: "./src")
-- `--ignoredDirs`, `-d` <dir1,dir2> - Comma-separated list of directories to ignore
-- `--ignoredFiles`, `-f` <file1,file2> - Comma-separated list of files to ignore (default: "logger.ts")
-- `--extensions`, `-e` <.js,.ts> - Comma-separated list of file extensions to process (default: ".js,.jsx,.ts,.tsx")
-- `--methods`, `-m` <method1,method2> - Comma-separated list of console methods to remove (default: "log")
-- `--preview`, `-p` - Preview changes without modifying files
-- `--verbose`, `-v` - Show detailed information for each file
-- `--help`, `-h` - Show help information
+- `--targetDir`, `--t` <path> - Directory to process (default: "./src")
+- `--ignoredDirs`, `--d` <dir1,dir2> - Comma-separated list of directories to ignore
+- `--ignoredFiles`, `--f` <file1,file2> - Comma-separated list of files to ignore (default: "logger.ts")
+- `--extensions`, `--e` <.js,.ts> - Comma-separated list of file extensions to process (default: ".js,.jsx,.ts,.tsx")
+- `--methods`, `--m` <method1,method2> - Comma-separated list of console methods to remove (default: "log")
+- `--preview`, `--p` - Preview changes without modifying files
+- `--verbose`, `--v` - Show detailed information for each file
+- `--reportFormat`, `--rf` <json,csv> - Report file format (default: null)
+- `--reportPath`, `--rp` <path> - Report file path (default: null)
+- `--help`, `--h` - Show help information
 
 ### Examples
 
@@ -73,15 +75,19 @@ logaway
 
 # Specify a target directory and ignore some folders
 logaway --targetDir=./app --ignoredDirs=node_modules,dist
-
-# Using shortcuts
-logaway -t ./app -d node_modules,dist -e .js,.ts
+logaway -t app -d node_modules,dist
 
 # Remove console.log, console.info and console.warn statements
 logaway --methods=log,info,warn
+logaway -m log,info,warn
 
 # Dry run to preview changes
 logaway --preview
+logaway --p
+
+# Generate a report file
+logaway --reportFormat=json --reportPath=./reports
+logaway --rf json --rp reports
 ```
 
 ## Examples of Removed Logs

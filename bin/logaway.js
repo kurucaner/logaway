@@ -53,6 +53,18 @@ const config = yargs(hideBin(process.argv))
     default: "log",
     coerce: (val) => val.split(",").filter(Boolean),
   })
+  .option("reportFormat", {
+    alias: "rf",
+    description: "Report file format",
+    type: "string",
+    default: null, // "json", "csv"
+  })
+  .option("reportPath", {
+    alias: "rp",
+    description: "Report file path",
+    type: "string",
+    default: null,
+  })
   .help()
   .alias("help", "h").argv;
 
@@ -64,6 +76,8 @@ const configObj = {
   preview: config.preview,
   verbose: config.verbose,
   methods: config.methods,
+  reportFormat: config.reportFormat,
+  reportPath: config.reportPath,
 };
 
 // Check if target directory exists before starting the process
