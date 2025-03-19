@@ -1,8 +1,9 @@
 import fs from "fs";
 import path from "path";
 import { generateReportFile } from "./generate-report-file.js";
+import prettier from "prettier";
 
-export function removeConsoleLogs(config) {
+export async function removeConsoleLogs(config) {
   // Extract configuration
   const {
     targetDir,
@@ -11,7 +12,8 @@ export function removeConsoleLogs(config) {
     fileExtensions,
     preview,
     methods = ["log"],
-    reportFormat = null, // "json", "csv"
+    prettier: usePrettier = false,
+    reportFormat = null,
     reportPath = null,
   } = config;
 
@@ -25,7 +27,7 @@ export function removeConsoleLogs(config) {
     return acc;
   }, {});
 
-  function processDirectory(dir) {
+  async function processDirectory(dir) {
     // Check if directory exists before proceeding
     if (!fs.existsSync(dir)) {
       throw new Error(`Directory "${dir}" does not exist.`);
@@ -34,11 +36,11 @@ export function removeConsoleLogs(config) {
     try {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-      entries.forEach((entry) => {
+      for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
 
         if (entry.isDirectory() && !ignoredDirectories?.includes(entry.name)) {
-          processDirectory(fullPath);
+          await processDirectory(fullPath);
         } else if (
           entry.isFile() &&
           fileExtensions?.includes(path.extname(entry.name)) &&
@@ -88,20 +90,45 @@ export function removeConsoleLogs(config) {
             });
 
             if (!preview) {
+              // Write file without console logs
               fs.writeFileSync(fullPath, updatedContent, "utf8");
+
+              // Format with Prettier if enabled
+              if (usePrettier) {
+                try {
+                  // Check if there's a Prettier config for this file
+                  const prettierConfig = await prettier.resolveConfig(fullPath);
+
+                  // Format the content
+                  const formattedContent = await prettier.format(
+                    updatedContent,
+                    {
+                      ...prettierConfig,
+                      filepath: fullPath, // This helps Prettier infer the parser
+                    }
+                  );
+
+                  // Write the formatted content back to the file
+                  fs.writeFileSync(fullPath, formattedContent, "utf8");
+                } catch (error) {
+                  console.warn(
+                    `Warning: Could not format ${relativePath} with Prettier: ${error.message}`
+                  );
+                }
+              }
             }
 
             filesModified++;
             totalLogsRemoved += totalFileLogsRemoved;
           }
         }
-      });
+      }
     } catch (error) {
       throw new Error(`Error processing directory ${dir}: ${error.message}`);
     }
   }
 
-  processDirectory(targetDir);
+  await processDirectory(targetDir);
 
   const report = {
     summary: {

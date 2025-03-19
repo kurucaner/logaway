@@ -53,6 +53,11 @@ const config = yargs(hideBin(process.argv))
     default: "log",
     coerce: (val) => val.split(",").filter(Boolean),
   })
+  .option("prettier", {
+    description: "Format modified files with Prettier",
+    type: "boolean",
+    default: false,
+  })
   .option("reportFormat", {
     alias: "rf",
     description: "Report file format",
@@ -76,6 +81,7 @@ const configObj = {
   preview: config.preview,
   verbose: config.verbose,
   methods: config.methods,
+  prettier: config.prettier,
   reportFormat: config.reportFormat,
   reportPath: config.reportPath,
 };
