@@ -3,7 +3,8 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs";
-import { removeConsoleLogs, printSummary } from "../src/index.js";
+import { removeConsoleLogs } from "../src/index.js";
+import { printSummary } from "../src/print-summary.js";
 
 // Parse command-line arguments with yargs
 const config = yargs(hideBin(process.argv))
