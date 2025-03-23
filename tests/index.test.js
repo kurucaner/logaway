@@ -62,7 +62,7 @@ function testConsoleLogRemoval() {
   }
 }
 
-function testMultipleMethodsRemoval() {
+async function testMultipleMethodsRemoval() {
   console.info("\n=== Testing multiple console methods removal ===");
   const mockFilePath = path.join(__dirname, "mock-methods.js");
 
@@ -83,7 +83,7 @@ function testMultipleMethodsRemoval() {
     };
 
     // Remove console statements
-    const result = removeConsoleLogs(config);
+    const result = await removeConsoleLogs(config);
 
     // Read the file content after processing
     const fileContent = fs.readFileSync(mockFilePath, "utf8");
@@ -102,6 +102,7 @@ function testMultipleMethodsRemoval() {
 
       // Verify specific method counts
       const { methodStats } = result;
+
       assert.strictEqual(
         methodStats.log,
         11,
@@ -143,10 +144,79 @@ function testMultipleMethodsRemoval() {
   }
 }
 
+async function testPreviewOption() {
+  console.info("\n=== Testing preview option ===");
+  const mockFilePath = path.join(__dirname, "mock-preview.js");
+
+  try {
+    // Create a temporary mock file with console.log examples
+    fs.writeFileSync(mockFilePath, mockConsoleStatements, "utf8");
+    console.info("Created temporary test file:", mockFilePath);
+
+    // Store original content for later comparison
+    const originalContent = fs.readFileSync(mockFilePath, "utf8");
+
+    // Run the remover with preview option
+    const config = {
+      targetDir: __dirname,
+      ignoredDirectories: [],
+      ignoredFiles: ["test-cases.js", "index.test.js"],
+      fileExtensions: [".js"],
+      preview: true, // Use preview mode
+      verbose: true,
+      methods: ["log"],
+    };
+
+    // Run with preview option
+    const result = await removeConsoleLogs(config);
+
+    // Read the file content after processing
+    const fileContent = fs.readFileSync(mockFilePath, "utf8");
+
+    // Check that file content is unchanged
+    if (fileContent !== originalContent) {
+      console.error(
+        "❌ Test FAILED: mock-preview.js was modified despite preview mode"
+      );
+      console.error("Expected file to remain unchanged");
+      process.exit(1);
+    } else {
+      console.info(
+        "✅ Test PASSED: mock-preview.js was not modified with preview option"
+      );
+
+      // Verify that the statistics correctly report what would have changed
+      if (result.totalLogsRemoved > 0) {
+        console.info(
+          `✅ Test PASSED: Successfully detected ${result.totalLogsRemoved} console logs that would be removed`
+        );
+        console.info(
+          `Stats: Checked ${result.filesChecked} files, would modify ${result.filesModified} files`
+        );
+      } else {
+        console.error(
+          "❌ Test FAILED: Failed to detect console logs in preview mode"
+        );
+        process.exit(1);
+      }
+    }
+  } catch (error) {
+    console.error("Error during test:", error);
+    process.exit(1);
+  } finally {
+    // Clean up - remove the test file
+    if (fs.existsSync(mockFilePath)) {
+      fs.unlinkSync(mockFilePath);
+      console.info("Cleaned up temporary test file");
+    }
+  }
+}
+
 async function runAllTests() {
   try {
     testConsoleLogRemoval();
-    testMultipleMethodsRemoval();
+    await testMultipleMethodsRemoval();
+    await testPreviewOption();
   } catch (error) {
     console.error("Error during test:", error);
     process.exit(1);
