@@ -32,6 +32,17 @@ Then add a script to your package.json:
 }
 ```
 
+### Prettier Support
+
+To use the `--prettier` option, you need to have Prettier installed in your project:
+
+| Package Manager | Command                           |
+| :-------------: | :-------------------------------- |
+|       npm       | `npm install --save-dev prettier` |
+|      yarn       | `yarn add --dev prettier`         |
+|      pnpm       | `pnpm add -D prettier`            |
+|       bun       | `bun add -d prettier`             |
+
 ## Usage
 
 ### Global Usage
@@ -63,6 +74,7 @@ npm run logaway --targetDir=./app --preview
 | `--ignoredFiles` | `-f`   | Comma-separated list of files to ignore            | `null`                |
 | `--extensions`   | `-e`   | Comma-separated list of file extensions to process | `".js,.jsx,.ts,.tsx"` |
 | `--methods`      | `-m`   | Comma-separated list of console methods to remove  | `"log"`               |
+| `--prettier`     |        | Format modified files with Prettier                | `false`               |
 | `--preview`      | `-p`   | Preview changes without modifying files            | `false`               |
 | `--verbose`      | `-v`   | Show detailed information for each file            | `false`               |
 | `--reportFormat` | `--rf` | Report file format (json,csv)                      | `null`                |
@@ -82,6 +94,9 @@ logaway -t app -d node_modules,dist
 # Remove console.log, console.info and console.warn statements
 logaway --methods=log,info,warn
 logaway -m log,info,warn
+
+# Format modified files with Prettier
+logaway --prettier
 
 # Dry run to preview changes
 logaway --preview
