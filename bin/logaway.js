@@ -121,7 +121,7 @@ if (!fs.existsSync(configObj.targetDir)) {
   }
 
   try {
-    const stats = removeConsoleLogs(configObj);
+    const stats = await removeConsoleLogs(configObj);
     printSummary(stats, configObj);
   } catch (error) {
     console.error(error.message);
