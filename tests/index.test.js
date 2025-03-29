@@ -7,12 +7,22 @@ import {
   mockConsoleStatements,
   mockMultipleMethodsStatements,
 } from "./test-cases.js";
+import { printSummary } from "../src/print-summary.js";
 
 // Get current directory (works in ESM)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function testConsoleLogRemoval() {
+async function testConsoleLogRemoval() {
   const mockFilePath = path.join(__dirname, "mock.js");
+  // Store original console.info to restore later
+  const originalConsoleInfo = console.info;
+  const consoleMessages = [];
+
+  // Mock console.info to capture messages
+  console.info = (...args) => {
+    consoleMessages.push(args.join(" "));
+    originalConsoleInfo(...args);
+  };
 
   try {
     // Create a temporary mock file with console.log examples
@@ -30,8 +40,8 @@ function testConsoleLogRemoval() {
     };
 
     // Remove console logs
-    const result = removeConsoleLogs(config);
-
+    const result = await removeConsoleLogs(config);
+    printSummary(result, config);
     // Read the file content after processing
     const fileContent = fs.readFileSync(mockFilePath, "utf8");
 
@@ -49,11 +59,26 @@ function testConsoleLogRemoval() {
       console.info(
         `Stats: Checked ${result.filesChecked} files, modified ${result.filesModified}, removed ${result.totalLogsRemoved} logs`
       );
+
+      // Check if the success message was displayed
+      const successMessage =
+        "All console statements have been removed successfully! 🎉";
+      if (consoleMessages.some((msg) => msg === successMessage)) {
+        console.info("✅ Test PASSED: Success message was displayed correctly");
+      } else {
+        console.error("❌ Test FAILED: Success message was not displayed");
+        console.error("Expected message:", successMessage);
+        console.error("Captured messages:", consoleMessages);
+        process.exit(1);
+      }
     }
   } catch (error) {
     console.error("Error during test:", error);
     process.exit(1);
   } finally {
+    // Restore original console.info
+    console.info = originalConsoleInfo;
+
     // Clean up - remove the test file
     if (fs.existsSync(mockFilePath)) {
       fs.unlinkSync(mockFilePath);
@@ -214,7 +239,7 @@ async function testPreviewOption() {
 
 async function runAllTests() {
   try {
-    testConsoleLogRemoval();
+    await testConsoleLogRemoval();
     await testMultipleMethodsRemoval();
     await testPreviewOption();
   } catch (error) {
