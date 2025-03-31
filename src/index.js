@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { generateReportFile } from "./generate-report-file.js";
-import prettier from "prettier";
 
 export async function removeConsoleLogs(config) {
   // Extract configuration
@@ -22,6 +21,7 @@ export async function removeConsoleLogs(config) {
   let filesModified = 0;
   let totalLogsRemoved = 0;
   let fileStats = [];
+  let formattingErrors = []; // Track files with formatting errors
   let methodStats = methods.reduce((acc, method) => {
     acc[method] = 0;
     return acc;
@@ -96,24 +96,31 @@ export async function removeConsoleLogs(config) {
               // Format with Prettier if enabled
               if (usePrettier) {
                 try {
+                  // Dynamically import prettier only when needed
+                  const prettier = await import("prettier");
+
                   // Check if there's a Prettier config for this file
-                  const prettierConfig = await prettier.resolveConfig(fullPath);
+                  const prettierConfig = await prettier.default.resolveConfig(
+                    fullPath
+                  );
 
                   // Format the content
-                  const formattedContent = await prettier.format(
+                  const formattedContent = await prettier.default.format(
                     updatedContent,
                     {
                       ...prettierConfig,
-                      filepath: fullPath, // This helps Prettier infer the parser
+                      filepath: fullPath,
                     }
                   );
 
                   // Write the formatted content back to the file
                   fs.writeFileSync(fullPath, formattedContent, "utf8");
                 } catch (error) {
-                  console.warn(
-                    `Warning: Could not format ${relativePath} with Prettier: ${error.message}`
-                  );
+                  // Collect error information instead of warning immediately
+                  formattingErrors.push({
+                    path: relativePath,
+                    error: error.message,
+                  });
                 }
               }
             }
@@ -130,11 +137,22 @@ export async function removeConsoleLogs(config) {
 
   await processDirectory(targetDir);
 
+  // Display a single warning for all formatting errors
+  if (formattingErrors.length > 0) {
+    console.warn(
+      `Warning: Could not format ${formattingErrors.length} file(s) with Prettier. Likely Prettier is not installed or not configured for this project.`
+    );
+    console.warn(
+      "Please install Prettier and configure it for your project by running `npm install prettier --save-dev`."
+    );
+  }
+
   const report = {
     summary: {
       filesChecked,
       filesModified,
       totalLogsRemoved,
+      formattingErrorCount: formattingErrors.length,
       timestamp: new Date().toISOString(),
     },
     methodStats,
@@ -153,4 +171,3 @@ export async function removeConsoleLogs(config) {
     methodStats,
   };
 }
-
