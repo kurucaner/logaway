@@ -6,34 +6,81 @@ import fs from "fs";
 import { removeConsoleLogs } from "../src/index.js";
 import { printSummary } from "../src/print-summary.js";
 
+import { cosmiconfigSync } from "cosmiconfig";
+
+const DefaultValues = {
+  targetDir: "./src",
+  extensions: [".js", ".jsx", ".ts", ".tsx"],
+  methods: ["log"],
+  reportFormat: "json",
+};
+
+const ModuleName = "logaway";
+const explorerSync = cosmiconfigSync(ModuleName);
+const searchResult = explorerSync.search();
+
+const fileConfig = searchResult
+  ? searchResult.config.default || searchResult.config
+  : {};
+
+if (fileConfig.ignoredDirs && Array.isArray(fileConfig.ignoredDirs)) {
+  fileConfig.ignoredDirs = fileConfig.ignoredDirs;
+} else if (
+  fileConfig.ignoredDirs &&
+  typeof fileConfig.ignoredDirs === "string"
+) {
+  fileConfig.ignoredDirs = fileConfig.ignoredDirs.split(",").filter(Boolean);
+}
+
+if (fileConfig.ignoredFiles && Array.isArray(fileConfig.ignoredFiles)) {
+  fileConfig.ignoredFiles = fileConfig.ignoredFiles;
+} else if (
+  fileConfig.ignoredFiles &&
+  typeof fileConfig.ignoredFiles === "string"
+) {
+  fileConfig.ignoredFiles = fileConfig.ignoredFiles.split(",").filter(Boolean);
+}
+
+if (fileConfig.extensions && Array.isArray(fileConfig.extensions)) {
+  fileConfig.extensions = fileConfig.extensions;
+} else if (fileConfig.extensions && typeof fileConfig.extensions === "string") {
+  fileConfig.extensions = fileConfig.extensions.split(",").filter(Boolean);
+}
+
+if (fileConfig.methods && Array.isArray(fileConfig.methods)) {
+  fileConfig.methods = fileConfig.methods;
+} else if (fileConfig.methods && typeof fileConfig.methods === "string") {
+  fileConfig.methods = fileConfig.methods.split(",").filter(Boolean);
+}
+
 // Parse command-line arguments with yargs
-const config = yargs(hideBin(process.argv))
+const cliOptions = yargs(hideBin(process.argv))
   .option("targetDir", {
     alias: "t",
     description: "Directory to process",
     type: "string",
-    default: "./src",
+    default: null,
   })
   .option("ignoredDirs", {
     alias: "d",
     description: "Directories to ignore",
     type: "string",
+    array: true,
     default: null,
-    coerce: (val) => val?.split(",").filter(Boolean),
   })
   .option("ignoredFiles", {
     alias: "f",
     description: "Files to ignore",
     type: "string",
+    array: true,
     default: null,
-    coerce: (val) => val?.split(",").filter(Boolean),
   })
   .option("extensions", {
     alias: "e",
     description: "File extensions to process",
     type: "string",
-    default: ".js,.jsx,.ts,.tsx",
-    coerce: (val) => val.split(",").filter(Boolean),
+    default: null,
+    array: true,
   })
   .option("preview", {
     alias: "p",
@@ -51,8 +98,8 @@ const config = yargs(hideBin(process.argv))
     alias: "m",
     description: "Console methods to remove (comma-separated)",
     type: "string",
-    default: "log",
-    coerce: (val) => val.split(",").filter(Boolean),
+    default: null,
+    array: true,
   })
   .option("prettier", {
     description: "Format modified files with Prettier",
@@ -62,8 +109,9 @@ const config = yargs(hideBin(process.argv))
   .option("reportFormat", {
     alias: "rf",
     description: "Report file format",
+    choices: ["json", "csv", null],
     type: "string",
-    default: null, // "json", "csv"
+    default: null,
   })
   .option("reportPath", {
     alias: "rp",
@@ -72,19 +120,32 @@ const config = yargs(hideBin(process.argv))
     default: null,
   })
   .help()
-  .alias("help", "h").argv;
+  .alias("help", "h")
+  .config(fileConfig).argv;
+
+const mergedConfig = {
+  ...DefaultValues,
+  ...Object.fromEntries(
+    Object.entries(cliOptions).filter(([key, value]) => {
+      // $ is used by yargs, _ are args not matched by yargs
+      return (
+        value !== undefined && !key.startsWith("$") && !key.startsWith("_")
+      );
+    })
+  ),
+};
 
 const configObj = {
-  targetDir: config.targetDir,
-  ignoredDirectories: config.ignoredDirs,
-  ignoredFiles: config.ignoredFiles,
-  fileExtensions: config.extensions,
-  preview: config.preview,
-  verbose: config.verbose,
-  methods: config.methods,
-  prettier: config.prettier,
-  reportFormat: config.reportFormat,
-  reportPath: config.reportPath,
+  targetDir: mergedConfig.targetDir,
+  ignoredDirectories: mergedConfig.ignoredDirs,
+  ignoredFiles: mergedConfig.ignoredFiles,
+  fileExtensions: mergedConfig.extensions,
+  preview: mergedConfig.preview,
+  verbose: mergedConfig.verbose,
+  methods: mergedConfig.methods,
+  prettier: mergedConfig.prettier,
+  reportFormat: mergedConfig.reportFormat,
+  reportPath: mergedConfig.reportPath,
 };
 
 // Check if target directory exists before starting the process
