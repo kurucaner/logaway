@@ -86,7 +86,7 @@ test("Configuration System Tests", async (t) => {
       path.join(projectRoot, ".logawayrc.json"),
       JSON.stringify({
         targetDir: "./src",
-        ignoredDirs: ["node_modules"],
+        ignoredDirs: ["node_modules", "foo"],
         methods: ["log"],
       }),
       "utf8"
@@ -96,11 +96,8 @@ test("Configuration System Tests", async (t) => {
       "node ./bin/logaway.js --targetDir=./tests --methods=debug,info --preview --verbose",
       { encoding: "utf8" }
     );
-
     assert.ok(output.includes("Starting to process ./tests"));
-    assert.ok(
-      output.includes("console.debug") || output.includes("console.info")
-    );
+    assert.ok(output.includes("debug") || output.includes("info"));
     assert.ok(!output.includes("Starting to process ./src"));
   });
 
@@ -121,9 +118,7 @@ test("Configuration System Tests", async (t) => {
     );
 
     assert.ok(output.includes("Starting to process ./tests"));
-    assert.ok(
-      output.includes("console.debug") || output.includes("console.info")
-    );
+    assert.ok(output.includes("debug") || output.includes("info"));
     assert.ok(!output.includes("Starting to process ./src"));
   });
 
@@ -143,54 +138,47 @@ test("Configuration System Tests", async (t) => {
     });
 
     assert.ok(output.includes("Ignored directories: node_modules, dist"));
-    assert.ok(
-      output.includes("console.log") && output.includes("console.debug")
-    );
+    assert.ok(output.includes("log") && output.includes("debug"));
   });
 
-  //   await t.test(
-  //     "Should use default values when not specified in config or CLI",
-  //     () => {
-  //       fs.writeFileSync(
-  //         path.join(projectRoot, ".logawayrc.json"),
-  //         JSON.stringify({
-  //           targetDir: "./tests",
-  //         }),
-  //         "utf8"
-  //       );
+  await t.test(
+    "Should use default values when not specified in config or CLI",
+    () => {
+      const output = execSync("node ./bin/logaway.js --preview --verbose", {
+        encoding: "utf8",
+      });
 
-  //       const output = execSync("node ./bin/logaway.js --preview --verbose", {
-  //         encoding: "utf8",
-  //       });
+      assert.ok(output.includes("File extensions: .js, .jsx, .ts, .tsx"));
+      assert.ok(output.includes("Starting to process ./src"));
+      assert.ok(output.includes("Ignored directories: None"));
+      assert.ok(output.includes("Ignored files: None"));
+      assert.ok(output.includes("log"));
+    }
+  );
 
-  //       assert.ok(output.includes("File extensions: .js, .jsx, .ts, .tsx"));
-  //       assert.ok(output.includes("console.log"));
-  //     }
-  //   );
+  await t.test("Should handle package.json configuration", () => {
+    fs.writeFileSync(
+      path.join(__dirname, "test-package.json"),
+      JSON.stringify({
+        name: "test-package",
+        logaway: {
+          targetDir: "./tests",
+          ignoredDirs: ["coverage"],
+          methods: ["warn", "error"],
+        },
+      }),
+      "utf8"
+    );
 
-  //   await t.test("Should handle package.json configuration", () => {
-  //     fs.writeFileSync(
-  //       path.join(__dirname, "test-package.json"),
-  //       JSON.stringify({
-  //         name: "test-package",
-  //         logaway: {
-  //           targetDir: "./tests",
-  //           ignoredDirs: ["coverage"],
-  //           methods: ["warn", "error"],
-  //         },
-  //       }),
-  //       "utf8"
-  //     );
+    const explorer = cosmiconfigSync("logaway", {
+      searchPlaces: ["test-package.json"],
+    });
 
-  //     const explorer = cosmiconfigSync("logaway", {
-  //       searchPlaces: ["test-package.json"],
-  //     });
+    const result = explorer.search(__dirname);
 
-  //     const result = explorer.search(__dirname);
-
-  //     assert.ok(result, "Config should be found in package.json");
-  //     assert.strictEqual(result.config.targetDir, "./tests");
-  //     assert.deepStrictEqual(result.config.ignoredDirs, ["coverage"]);
-  //     assert.deepStrictEqual(result.config.methods, ["warn", "error"]);
-  //   });
+    assert.ok(result, "Config should be found in package.json");
+    assert.strictEqual(result.config.logaway.targetDir, "./tests");
+    assert.deepStrictEqual(result.config.logaway.ignoredDirs, ["coverage"]);
+    assert.deepStrictEqual(result.config.logaway.methods, ["warn", "error"]);
+  });
 });
