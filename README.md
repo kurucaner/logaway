@@ -43,6 +43,70 @@ To use the `--prettier` option, you need to have Prettier installed in your proj
 |      pnpm       | `pnpm add -D prettier`            |
 |       bun       | `bun add -d prettier`             |
 
+## Configuration
+
+logaway supports configuration through a config file, which can be specified in several formats:
+
+### Config File Formats
+
+logaway will automatically search for configuration in the following files (in order of precedence):
+
+1. `logaway.config.js` - JavaScript module
+2. `.logawayrc.json` - JSON file
+3. `.logawayrc.yaml` - YAML file
+4. `.logawayrc.yml` - YAML file
+5. `.logawayrc` - JSON file
+6. `logaway` field in `package.json`
+
+### Config File Examples
+
+**logaway.config.js**:
+
+```javascript
+export default {
+  targetDir: "./src",
+  ignoredDirs: ["node_modules", "dist"],
+  extensions: [".js", ".jsx", ".ts", ".tsx"],
+  methods: ["log", "debug"],
+  prettier: true,
+};
+```
+
+**.logawayrc.json**:
+
+```json
+{
+  "targetDir": "./src",
+  "ignoredDirs": ["node_modules", "dist"],
+  "extensions": [".js", ".jsx", ".ts", ".tsx"],
+  "methods": ["log", "debug"],
+  "prettier": true
+}
+```
+
+**package.json**:
+
+```json
+{
+  "name": "my-project",
+  "logaway": {
+    "targetDir": "./src",
+    "ignoredDirs": ["node_modules", "dist"],
+    "methods": ["log", "debug"]
+  }
+}
+```
+
+### Configuration Precedence
+
+Configuration values are applied in the following order (highest to lowest priority):
+
+1. Command-line arguments
+2. Config file values
+3. Default values
+
+For example, if you specify `--methods=log,error` on the command line, it will override any `methods` setting in your config file.
+
 ## Usage
 
 ### Global Usage
@@ -105,6 +169,12 @@ logaway -p
 # Generate a report file
 logaway --reportFormat=json --reportPath=./reports
 logaway --rf json --rp reports
+
+# Use with config file (no additional arguments needed)
+logaway
+
+# Override config file settings with CLI arguments
+logaway --methods=error,warn
 ```
 
 ## Examples of Removed Logs
