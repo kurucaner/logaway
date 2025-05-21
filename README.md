@@ -32,17 +32,6 @@ Then add a script to your package.json:
 }
 ```
 
-### Prettier Support
-
-To use the `--prettier` option, you need to have Prettier installed in your project:
-
-| Package Manager | Command                           |
-| :-------------: | :-------------------------------- |
-|       npm       | `npm install --save-dev prettier` |
-|      yarn       | `yarn add --dev prettier`         |
-|      pnpm       | `pnpm add -D prettier`            |
-|       bun       | `bun add -d prettier`             |
-
 ## Configuration
 
 logaway supports configuration through a config file, which can be specified in several formats:
