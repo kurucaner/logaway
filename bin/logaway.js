@@ -3,13 +3,14 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs";
+import path from "path";
 import { removeConsoleLogs } from "../src/index.js";
 import { printSummary } from "../src/print-summary.js";
 import { arrayHasLength, isArray } from "../src/utils.js";
 import { cosmiconfigSync } from "cosmiconfig";
 
 const DefaultValues = {
-  targetDir: "./src",
+  targetDir: "./",
   extensions: [".js", ".jsx", ".ts", ".tsx"],
   methods: ["log"],
   reportFormat: "",
@@ -61,6 +62,52 @@ if (fileConfig.methods && isArray(fileConfig.methods)) {
 
 // Parse command-line arguments with yargs
 const cliOptions = yargs(hideBin(process.argv))
+  .command("init", "Create a default configuration file", {}, async () => {
+    const configFiles = [
+      "logaway.config.js",
+      ".logawayrc.json",
+      ".logawayrc.yaml",
+      ".logawayrc.yml",
+      ".logawayrc",
+    ];
+
+    // Check for existing config files
+    const existingConfigs = configFiles.filter((file) =>
+      fs.existsSync(path.join(process.cwd(), file))
+    );
+
+    // Check for package.json
+    const packageJsonPath = path.join(process.cwd(), "package.json");
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+      if (packageJson.logaway) {
+        existingConfigs.push("package.json (logaway field)");
+      }
+    }
+
+    if (existingConfigs.length > 0) {
+      console.error("Error: Configuration already exists in:");
+      existingConfigs.forEach((config) => console.error(`- ${config}`));
+      process.exit(1);
+    }
+
+    const defaultConfig = {
+      targetDir: "./",
+      ignoredDirs: ["node_modules", "dist", "build"],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
+      methods: ["log", "debug"],
+      prettier: true,
+    };
+
+    try {
+      const configPath = path.join(process.cwd(), ".logawayrc.json");
+      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 1));
+      process.exit(0);
+    } catch (error) {
+      console.error("Error creating configuration file:", error.message);
+      process.exit(1);
+    }
+  })
   .option("targetDir", {
     alias: "t",
     description: "Directory to process",
@@ -128,6 +175,12 @@ const cliOptions = yargs(hideBin(process.argv))
   .help()
   .alias("help", "h")
   .config(fileConfig).argv;
+
+// Only run the main logic if we're not in init command
+if (cliOptions._[0] === "init") {
+  console.log("init command");
+  process.exit(0);
+}
 
 const mergedConfig = {
   ...DefaultValues,

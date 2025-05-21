@@ -47,13 +47,35 @@ logaway will automatically search for configuration in the following files (in o
 5. `.logawayrc` - JSON file
 6. `logaway` field in `package.json`
 
+### Initializing Configuration
+
+You can create a default configuration file using the `init` command:
+
+```bash
+logaway init
+```
+
+This will create a `.logawayrc.json` file with the following default configuration:
+
+```json
+{
+  "targetDir": "./",
+  "ignoredDirs": ["node_modules", "dist", "build"],
+  "extensions": [".js", ".jsx", ".ts", ".tsx"],
+  "methods": ["log", "debug"],
+  "prettier": true
+}
+```
+
+Note: The `init` command will fail if any configuration file already exists in your project.
+
 ### Config File Examples
 
 **logaway.config.js**:
 
 ```javascript
 export default {
-  targetDir: "./src",
+  targetDir: "./",
   ignoredDirs: ["node_modules", "dist"],
   extensions: [".js", ".jsx", ".ts", ".tsx"],
   methods: ["log", "debug"],
@@ -65,7 +87,7 @@ export default {
 
 ```json
 {
-  "targetDir": "./src",
+  "targetDir": "./",
   "ignoredDirs": ["node_modules", "dist"],
   "extensions": [".js", ".jsx", ".ts", ".tsx"],
   "methods": ["log", "debug"],
@@ -122,7 +144,7 @@ npm run logaway --targetDir=./app --preview
 
 | Option           | Short  | Description                                        | Default               |
 | ---------------- | ------ | -------------------------------------------------- | --------------------- |
-| `--targetDir`    | `-t`   | Directory to process                               | `"./src"`             |
+| `--targetDir`    | `-t`   | Directory to process                               | `"./"`                |
 | `--ignoredDirs`  | `-d`   | Comma-separated list of directories to ignore      | `null`                |
 | `--ignoredFiles` | `-f`   | Comma-separated list of files to ignore            | `null`                |
 | `--extensions`   | `-e`   | Comma-separated list of file extensions to process | `".js,.jsx,.ts,.tsx"` |
@@ -137,7 +159,7 @@ npm run logaway --targetDir=./app --preview
 ### Examples
 
 ```bash
-# Process the default src directory
+# Process the default ./ directory
 logaway
 
 # Specify a target directory and ignore some folders

@@ -133,9 +133,12 @@ test("Configuration System Tests", async (t) => {
       "utf8"
     );
 
-    const output = execSync("node ./bin/logaway.js --preview --verbose", {
-      encoding: "utf8",
-    });
+    const output = execSync(
+      "node ./bin/logaway.js --targetDir=./src --preview --verbose",
+      {
+        encoding: "utf8",
+      }
+    );
 
     assert.ok(output.includes("Ignored directories: node_modules, dist"));
     assert.ok(output.includes("log") && output.includes("debug"));
@@ -144,9 +147,12 @@ test("Configuration System Tests", async (t) => {
   await t.test(
     "Should use default values when not specified in config or CLI",
     () => {
-      const output = execSync("node ./bin/logaway.js --preview --verbose", {
-        encoding: "utf8",
-      });
+      const output = execSync(
+        "node ./bin/logaway.js --targetDir=./src --preview --verbose",
+        {
+          encoding: "utf8",
+        }
+      );
 
       assert.ok(output.includes("File extensions: .js, .jsx, .ts, .tsx"));
       assert.ok(output.includes("Starting to process ./src"));
@@ -180,5 +186,43 @@ test("Configuration System Tests", async (t) => {
     assert.strictEqual(result.config.logaway.targetDir, "./tests");
     assert.deepStrictEqual(result.config.logaway.ignoredDirs, ["coverage"]);
     assert.deepStrictEqual(result.config.logaway.methods, ["warn", "error"]);
+  });
+
+  await t.test("Should create default config file with init command", () => {
+    // Run init command
+    execSync("node ./bin/logaway.js init", { encoding: "utf8" });
+
+    // Check if .logawayrc.json was created
+    const configPath = path.join(projectRoot, ".logawayrc.json");
+    assert.ok(fs.existsSync(configPath), "Config file should be created");
+
+    // Read and verify the content
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    assert.strictEqual(config.targetDir, "./");
+    assert.deepStrictEqual(config.ignoredDirs, [
+      "node_modules",
+      "dist",
+      "build",
+    ]);
+    assert.deepStrictEqual(config.extensions, [".js", ".jsx", ".ts", ".tsx"]);
+    assert.deepStrictEqual(config.methods, ["log", "debug"]);
+    assert.strictEqual(config.prettier, true);
+  });
+
+  await t.test("Should fail init command if config already exists", () => {
+    // Create an existing config file
+    fs.writeFileSync(
+      path.join(projectRoot, ".logawayrc.json"),
+      JSON.stringify({ targetDir: "./src" }),
+      "utf8"
+    );
+
+    // Try to run init command and expect it to fail
+    try {
+      execSync("node ./bin/logaway.js init", { encoding: "utf8" });
+      assert.fail("Init command should fail when config exists");
+    } catch (error) {
+      assert.ok(error.message.includes("Error: Configuration already exists"));
+    }
   });
 });
