@@ -47,6 +47,28 @@ logaway will automatically search for configuration in the following files (in o
 5. `.logawayrc` - JSON file
 6. `logaway` field in `package.json`
 
+### Initializing Configuration
+
+You can create a default configuration file using the `init` command:
+
+```bash
+logaway init
+```
+
+This will create a `.logawayrc.json` file with the following default configuration:
+
+```json
+{
+  "targetDir": "./",
+  "ignoredDirs": ["node_modules", "dist", "build"],
+  "extensions": [".js", ".jsx", ".ts", ".tsx"],
+  "methods": ["log", "debug"],
+  "prettier": true
+}
+```
+
+Note: The `init` command will fail if any configuration file already exists in your project.
+
 ### Config File Examples
 
 **logaway.config.js**:
