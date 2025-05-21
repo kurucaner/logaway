@@ -9,7 +9,7 @@ import { arrayHasLength, isArray } from "../src/utils.js";
 import { cosmiconfigSync } from "cosmiconfig";
 
 const DefaultValues = {
-  targetDir: "./src",
+  targetDir: "./",
   extensions: [".js", ".jsx", ".ts", ".tsx"],
   methods: ["log"],
   reportFormat: "",
