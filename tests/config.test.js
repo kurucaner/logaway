@@ -85,7 +85,7 @@ test("Configuration System Tests", async (t) => {
     fs.writeFileSync(
       path.join(projectRoot, ".logawayrc.json"),
       JSON.stringify({
-        targetDir: "./src",
+        targetDir: "./",
         ignoredDirs: ["node_modules", "foo"],
         methods: ["log"],
       }),
@@ -98,14 +98,14 @@ test("Configuration System Tests", async (t) => {
     );
     assert.ok(output.includes("Starting to process ./tests"));
     assert.ok(output.includes("debug") || output.includes("info"));
-    assert.ok(!output.includes("Starting to process ./src"));
+    assert.ok(!output.includes("Starting to process ./"));
   });
 
   await t.test("CLI arguments should override js file configuration", () => {
     fs.writeFileSync(
       path.join(projectRoot, "logaway.config.js"),
       `export default {
-          targetDir: './src',
+          targetDir: './',
           ignoredDirs: ['node_modules'],
           methods: ['log']
         };`,
@@ -119,7 +119,7 @@ test("Configuration System Tests", async (t) => {
 
     assert.ok(output.includes("Starting to process ./tests"));
     assert.ok(output.includes("debug") || output.includes("info"));
-    assert.ok(!output.includes("Starting to process ./src"));
+    assert.ok(!output.includes("Starting to process ./"));
   });
 
   await t.test("Should normalize configuration values properly", () => {
@@ -149,7 +149,7 @@ test("Configuration System Tests", async (t) => {
       });
 
       assert.ok(output.includes("File extensions: .js, .jsx, .ts, .tsx"));
-      assert.ok(output.includes("Starting to process ./src"));
+      assert.ok(output.includes("Starting to process ./"));
       assert.ok(output.includes("Ignored directories: None"));
       assert.ok(output.includes("Ignored files: None"));
       assert.ok(output.includes("log"));
