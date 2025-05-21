@@ -85,7 +85,7 @@ test("Configuration System Tests", async (t) => {
     fs.writeFileSync(
       path.join(projectRoot, ".logawayrc.json"),
       JSON.stringify({
-        targetDir: "./",
+        targetDir: "./src",
         ignoredDirs: ["node_modules", "foo"],
         methods: ["log"],
       }),
@@ -98,14 +98,14 @@ test("Configuration System Tests", async (t) => {
     );
     assert.ok(output.includes("Starting to process ./tests"));
     assert.ok(output.includes("debug") || output.includes("info"));
-    assert.ok(!output.includes("Starting to process ./"));
+    assert.ok(!output.includes("Starting to process ./src"));
   });
 
   await t.test("CLI arguments should override js file configuration", () => {
     fs.writeFileSync(
       path.join(projectRoot, "logaway.config.js"),
       `export default {
-          targetDir: './',
+          targetDir: './src',
           ignoredDirs: ['node_modules'],
           methods: ['log']
         };`,
@@ -119,7 +119,7 @@ test("Configuration System Tests", async (t) => {
 
     assert.ok(output.includes("Starting to process ./tests"));
     assert.ok(output.includes("debug") || output.includes("info"));
-    assert.ok(!output.includes("Starting to process ./"));
+    assert.ok(!output.includes("Starting to process ./src"));
   });
 
   await t.test("Should normalize configuration values properly", () => {
@@ -133,9 +133,12 @@ test("Configuration System Tests", async (t) => {
       "utf8"
     );
 
-    const output = execSync("node ./bin/logaway.js --preview --verbose", {
-      encoding: "utf8",
-    });
+    const output = execSync(
+      "node ./bin/logaway.js --targetDir=./src --preview --verbose",
+      {
+        encoding: "utf8",
+      }
+    );
 
     assert.ok(output.includes("Ignored directories: node_modules, dist"));
     assert.ok(output.includes("log") && output.includes("debug"));
@@ -144,12 +147,15 @@ test("Configuration System Tests", async (t) => {
   await t.test(
     "Should use default values when not specified in config or CLI",
     () => {
-      const output = execSync("node ./bin/logaway.js --preview --verbose", {
-        encoding: "utf8",
-      });
+      const output = execSync(
+        "node ./bin/logaway.js --targetDir=./src --preview --verbose",
+        {
+          encoding: "utf8",
+        }
+      );
 
       assert.ok(output.includes("File extensions: .js, .jsx, .ts, .tsx"));
-      assert.ok(output.includes("Starting to process ./"));
+      assert.ok(output.includes("Starting to process ./src"));
       assert.ok(output.includes("Ignored directories: None"));
       assert.ok(output.includes("Ignored files: None"));
       assert.ok(output.includes("log"));
