@@ -4,10 +4,57 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs";
 import path from "path";
+import https from "https";
 import { removeConsoleLogs } from "../src/index.js";
 import { printSummary } from "../src/print-summary.js";
 import { arrayHasLength, isArray } from "../src/utils.js";
 import { cosmiconfigSync } from "cosmiconfig";
+
+// Get current version from package.json
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8")
+);
+const currentVersion = packageJson.version;
+
+export async function checkForUpdates() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: "registry.npmjs.org",
+      path: "/logaway/latest",
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => {
+        try {
+          const latestVersion = JSON.parse(data).version;
+          if (latestVersion !== currentVersion) {
+            console.log("\n📦 A new version of logaway is available!");
+            console.log(`Current version: ${currentVersion}`);
+            console.log(`Latest version: ${latestVersion}`);
+            console.log('Run "npm install -g logaway" to update\n');
+          }
+          resolve();
+        } catch {
+          // Silently fail - don't interrupt the user's workflow
+          resolve();
+        }
+      });
+    });
+
+    req.on("error", () => {
+      // Silently fail - don't interrupt the user's workflow
+      resolve();
+    });
+
+    req.end();
+  });
+}
 
 const DefaultValues = {
   targetDir: "./",
@@ -181,6 +228,9 @@ if (cliOptions._[0] === "init") {
   console.log("init command");
   process.exit(0);
 }
+
+// Check for updates before processing
+await checkForUpdates();
 
 const mergedConfig = {
   ...DefaultValues,
