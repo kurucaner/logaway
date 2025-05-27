@@ -8,6 +8,7 @@ import { removeConsoleLogs } from "../src/index.js";
 import { printSummary } from "../src/print-summary.js";
 import { arrayHasLength, isArray } from "../src/utils.js";
 import { cosmiconfigSync } from "cosmiconfig";
+import { checkForUpdates } from "./version-checker.js";
 
 const DefaultValues = {
   targetDir: "./",
@@ -181,6 +182,9 @@ if (cliOptions._[0] === "init") {
   console.log("init command");
   process.exit(0);
 }
+
+// Check for updates before processing
+await checkForUpdates();
 
 const mergedConfig = {
   ...DefaultValues,
