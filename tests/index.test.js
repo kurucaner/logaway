@@ -237,11 +237,98 @@ async function testPreviewOption() {
   }
 }
 
+async function testMultipleDirectories() {
+  console.info("\n=== Testing multiple target directories ===");
+
+  const testDir1 = path.join(__dirname, "testdir1");
+  const testDir2 = path.join(__dirname, "testdir2");
+  const mockFile1 = path.join(testDir1, "mock1.js");
+  const mockFile2 = path.join(testDir2, "mock2.js");
+
+  try {
+    // Create test directories
+    fs.mkdirSync(testDir1, { recursive: true });
+    fs.mkdirSync(testDir2, { recursive: true });
+
+    // Create mock files with console statements
+    fs.writeFileSync(mockFile1, mockConsoleStatements, "utf8");
+    fs.writeFileSync(mockFile2, mockMultipleMethodsStatements, "utf8");
+
+    console.info("Created test directories and files");
+
+    // Test with array of target directories
+    const config = {
+      targetDir: [testDir1, testDir2], // Array of directories
+      ignoredDirectories: [],
+      ignoredFiles: [],
+      fileExtensions: [".js"],
+      preview: false,
+      verbose: true,
+      methods: ["log", "error", "warn", "info", "debug"],
+    };
+
+    // Remove console statements from both directories
+    const result = await removeConsoleLogs(config);
+
+    // Read the file contents after processing
+    const fileContent1 = fs.readFileSync(mockFile1, "utf8");
+    const fileContent2 = fs.readFileSync(mockFile2, "utf8");
+
+    // Check if both files are cleaned
+    if (fileContent1.trim().length > 0 || fileContent2.trim().length > 0) {
+      console.error(
+        "❌ Test FAILED: Files still contain content after processing"
+      );
+      console.error("File 1 remaining content:", fileContent1);
+      console.error("File 2 remaining content:", fileContent2);
+      process.exit(1);
+    } else {
+      console.info(
+        "✅ Test PASSED: All files in multiple directories were cleaned"
+      );
+      console.info(
+        `Stats: Checked ${result.filesChecked} files, modified ${result.filesModified}, removed ${result.totalLogsRemoved} logs`
+      );
+
+      // Verify that files from both directories were processed
+      const dir1Files = result.fileStats.filter((file) =>
+        file.path.includes("mock1.js")
+      );
+      const dir2Files = result.fileStats.filter((file) =>
+        file.path.includes("mock2.js")
+      );
+
+      if (dir1Files.length === 1 && dir2Files.length === 1) {
+        console.info(
+          "✅ Test PASSED: Files from both directories were processed"
+        );
+      } else {
+        console.error(
+          "❌ Test FAILED: Not all directories were processed correctly"
+        );
+        console.error("File stats:", result.fileStats);
+        process.exit(1);
+      }
+    }
+  } catch (error) {
+    console.error("Error during test:", error);
+    process.exit(1);
+  } finally {
+    // Clean up - remove test directories and files
+    if (fs.existsSync(mockFile1)) fs.unlinkSync(mockFile1);
+    if (fs.existsSync(mockFile2)) fs.unlinkSync(mockFile2);
+    if (fs.existsSync(testDir1)) fs.rmdirSync(testDir1);
+    if (fs.existsSync(testDir2)) fs.rmdirSync(testDir2);
+    console.info("Cleaned up test directories and files");
+  }
+}
+
 async function runAllTests() {
   try {
     await testConsoleLogRemoval();
     await testMultipleMethodsRemoval();
     await testPreviewOption();
+    await testMultipleDirectories();
   } catch (error) {
     console.error("Error during test:", error);
     process.exit(1);
