@@ -67,6 +67,18 @@ This will create a `.logawayrc.json` file with the following default configurati
 }
 ```
 
+**Note**: `targetDir` can also be an array of directories to process multiple directories simultaneously:
+
+```json
+{
+  "targetDir": ["./src", "./lib", "./utils"],
+  "ignoredDirs": ["node_modules", "dist", "build"],
+  "extensions": [".js", ".jsx", ".ts", ".tsx"],
+  "methods": ["log", "debug"],
+  "prettier": true
+}
+```
+
 Note: The `init` command will fail if any configuration file already exists in your project.
 
 ### Config File Examples
@@ -144,7 +156,7 @@ npm run logaway --targetDir=./app --preview
 
 | Option           | Short  | Description                                        | Default               |
 | ---------------- | ------ | -------------------------------------------------- | --------------------- |
-| `--targetDir`    | `-t`   | Directory to process                               | `"./"`                |
+| `--targetDir`    | `-t`   | Directory(s) to process                            | `"./"`                |
 | `--ignoredDirs`  | `-d`   | Comma-separated list of directories to ignore      | `null`                |
 | `--ignoredFiles` | `-f`   | Comma-separated list of files to ignore            | `null`                |
 | `--extensions`   | `-e`   | Comma-separated list of file extensions to process | `".js,.jsx,.ts,.tsx"` |
@@ -166,6 +178,10 @@ logaway
 logaway --targetDir=./app --ignoredDirs=node_modules,dist
 logaway -t app -d node_modules,dist
 
+# Process multiple directories
+logaway --targetDir=./src --targetDir=./lib --targetDir=./utils
+logaway -t src -t lib -t utils
+
 # Remove console.log, console.info and console.warn statements
 logaway --methods=log,info,warn
 logaway -m log,info,warn
@@ -186,6 +202,78 @@ logaway
 
 # Override config file settings with CLI arguments
 logaway --methods=error,warn
+```
+
+## Multiple Target Directories
+
+logaway supports processing multiple directories simultaneously. This is useful when you want to clean console statements from different parts of your project at once.
+
+### Command Line Usage
+
+You can specify multiple target directories using the `--targetDir` flag multiple times:
+
+```bash
+# Process multiple directories
+logaway --targetDir=./src --targetDir=./lib --targetDir=./utils
+logaway -t src -t lib -t utils
+
+# With additional options
+logaway -t src -t components -t utils --methods=log,error --preview
+```
+
+### Configuration File Usage
+
+In your configuration file, you can specify `targetDir` as an array:
+
+**JSON Configuration**:
+
+```json
+{
+  "targetDir": ["./src", "./components", "./utils"],
+  "methods": ["log", "error", "warn"],
+  "prettier": true
+}
+```
+
+**JavaScript Configuration**:
+
+```javascript
+export default {
+  targetDir: ["./src", "./components", "./utils"],
+  methods: ["log", "error", "warn"],
+  prettier: true,
+};
+```
+
+### Features
+
+- **Validation**: All directories are validated before processing begins
+- **Unified reporting**: Statistics are combined across all processed directories
+- **Relative paths**: File paths in reports are relative to their respective target directories
+- **Error handling**: If any directory doesn't exist, the process will stop with a clear error message
+
+### Example Output
+
+```bash
+$ logaway -t src -t lib --verbose
+
+Starting to process 2 directories...
+Target directories: src, lib
+Ignored directories: node_modules, dist, build
+Console methods: log
+File extensions: .js, .jsx, .ts, .tsx
+
+=== Summary ===
+Files checked: 45
+Files modified: 12
+Total console statements removed: 87
+
+=== Files with most console statements ===
+1. src/auth/login.js: 15 console statements
+2. lib/utils/logger.js: 12 console statements
+3. src/components/Header.jsx: 8 console statements
+
+All console statements have been removed successfully! 🎉
 ```
 
 ## Examples of Removed Logs

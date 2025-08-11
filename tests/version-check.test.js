@@ -60,7 +60,7 @@ test("Version Check Tests", async (t) => {
       };
 
       // Import and run the check
-      const { checkForUpdates } = await import("../bin/logaway.js");
+      const { checkForUpdates } = await import("../bin/version-checker.js");
       await checkForUpdates();
 
       // Restore console.log
@@ -106,7 +106,7 @@ test("Version Check Tests", async (t) => {
     };
 
     // Import and run the check
-    const { checkForUpdates } = await import("../bin/logaway.js");
+    const { checkForUpdates } = await import("../bin/version-checker.js");
     await checkForUpdates();
 
     // Restore console.log
@@ -137,7 +137,7 @@ test("Version Check Tests", async (t) => {
     };
 
     // Import and run the check
-    const { checkForUpdates } = await import("../bin/logaway.js");
+    const { checkForUpdates } = await import("../bin/version-checker.js");
     await checkForUpdates();
 
     // Restore console.log

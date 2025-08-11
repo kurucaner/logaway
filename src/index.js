@@ -16,6 +16,9 @@ export async function removeConsoleLogs(config) {
     reportPath = null,
   } = config;
 
+  // Ensure targetDir is an array
+  const targetDirs = Array.isArray(targetDir) ? targetDir : [targetDir];
+
   // Statistics
   let filesChecked = 0;
   let filesModified = 0;
@@ -81,8 +84,14 @@ export async function removeConsoleLogs(config) {
 
           // Only process and report if logs were found
           if (totalFileLogsRemoved > 0) {
-            // Store stats for each file with logs
-            const relativePath = path.relative(targetDir, fullPath);
+            // Store stats for each file with logs - use the current targetDir for relative path
+            const currentTargetDir = targetDirs.find((dir) =>
+              fullPath.startsWith(path.resolve(dir))
+            );
+            const relativePath = path.relative(
+              currentTargetDir || targetDirs[0],
+              fullPath
+            );
             fileStats.push({
               path: relativePath,
               logsRemoved: totalFileLogsRemoved,
@@ -135,7 +144,10 @@ export async function removeConsoleLogs(config) {
     }
   }
 
-  await processDirectory(targetDir);
+  // Process each target directory
+  for (const dir of targetDirs) {
+    await processDirectory(dir);
+  }
 
   // Display a single warning for all formatting errors
   if (formattingErrors.length > 0) {

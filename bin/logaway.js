@@ -61,6 +61,12 @@ if (fileConfig.methods && isArray(fileConfig.methods)) {
   fileConfig.methods = fileConfig.methods.split(",").filter(Boolean);
 }
 
+if (fileConfig.targetDir && isArray(fileConfig.targetDir)) {
+  fileConfig.targetDir = fileConfig.targetDir;
+} else if (fileConfig.targetDir && typeof fileConfig.targetDir === "string") {
+  fileConfig.targetDir = [fileConfig.targetDir];
+}
+
 // Parse command-line arguments with yargs
 const cliOptions = yargs(hideBin(process.argv))
   .command("init", "Create a default configuration file", {}, async () => {
@@ -111,8 +117,9 @@ const cliOptions = yargs(hideBin(process.argv))
   })
   .option("targetDir", {
     alias: "t",
-    description: "Directory to process",
+    description: "Directory(s) to process",
     type: "string",
+    array: true,
     default: undefined,
   })
   .option("ignoredDirs", {
@@ -204,6 +211,13 @@ const mergedConfig = {
   ),
 };
 
+// Ensure targetDir is always an array
+if (mergedConfig.targetDir && !isArray(mergedConfig.targetDir)) {
+  mergedConfig.targetDir = [mergedConfig.targetDir];
+} else if (!mergedConfig.targetDir) {
+  mergedConfig.targetDir = [DefaultValues.targetDir];
+}
+
 const configObj = {
   targetDir: mergedConfig.targetDir,
   ignoredDirectories: mergedConfig.ignoredDirs,
@@ -217,22 +231,32 @@ const configObj = {
   reportPath: mergedConfig.reportPath,
 };
 
-// Check if target directory exists before starting the process
-if (!fs.existsSync(configObj.targetDir)) {
+// Check if target directories exist before starting the process
+const targetDirs = isArray(configObj.targetDir)
+  ? configObj.targetDir
+  : [configObj.targetDir];
+const nonExistentDirs = targetDirs.filter((dir) => !fs.existsSync(dir));
+
+if (nonExistentDirs.length > 0) {
   console.error(
-    `Error: Target directory "${configObj.targetDir}" does not exist.`
+    `Error: Target director${
+      nonExistentDirs.length > 1 ? "ies" : "y"
+    } "${nonExistentDirs.join('", "')}" do${
+      nonExistentDirs.length === 1 ? "es" : ""
+    } not exist.`
   );
   console.log(
-    "Please provide a valid directory path using --targetDir option."
+    "Please provide valid directory path(s) using --targetDir option."
   );
   process.exit(1);
 } else {
   console.log(
     `${configObj.preview ? "[DRY RUN] " : ""}Starting to process ${
-      configObj.targetDir
+      targetDirs.length > 1 ? `${targetDirs.length} directories` : targetDirs[0]
     }...`
   );
   if (configObj.verbose || configObj.preview) {
+    console.log(`Target directories: ${targetDirs.join(", ")}`);
     console.log(
       `Ignored directories: ${
         configObj.ignoredDirectories?.length
